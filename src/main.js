@@ -1,7 +1,10 @@
+const fs = require('fs');
 const http = require('http');
 const url = require('url');
 const Gpio = require('onoff').Gpio;
 const led = new Gpio(14, 'out');
+
+const indexHtml = fs.readFileSync('./src/index.html', 'utf8');
 
 const respondWithLight = (msg, val) => res => {
   res.setTimeout(1000);
@@ -30,8 +33,8 @@ const requestHandler = (req, res) => {
 
   res.setTimeout(500);
   res.setHeader('Content-Type', 'text/html');
-  res.writeHead(200, {'Content-Type': 'text/plain'});
-  return res.end('ok');
+  res.writeHead(200, {'Content-Type': 'text/html'});
+  return res.end(indexHtml);
 };
 
 const server = http.createServer(requestHandler);
@@ -43,4 +46,5 @@ server.listen(6555, null, null, () => {
 process.on('SIGINT', () => {
   console.log('see ya!');
   server.close();
+  led.unexport();
 });

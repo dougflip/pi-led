@@ -1,0 +1,37 @@
+<!doctype html>
+<html>
+
+<head>
+    <title>PI LED</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+      .led-toggle-button {
+        width: 75vw;
+        height: 75vh;
+      }
+    </style>
+</head>
+
+<body>
+    <button class='led-toggle-button'></button>
+    <script type="text/javascript">
+      const ledToggle = document.querySelector('.led-toggle-button');
+      ledToggle.innerHTML = 'on';
+
+      const turnOn = () => {
+        ledToggle.innerHTML = 'off';
+        return fetch('/light-on');
+      };
+
+      const turnOff = () => {
+        ledToggle.innerHTML = 'on';
+        return fetch('/light-off');
+      };
+
+      ledToggle.addEventListener('click', evt => {
+        return ledToggle.innerHTML === 'on' ? turnOn() : turnOff();
+      });
+    </script>
+</body>
+
+</html>
