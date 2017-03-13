@@ -1,15 +1,18 @@
 const http = require('http');
 const url = require('url');
+const Gpio = require('onoff').Gpio;
+const led = new Gpio(14, 'out');
 
-const respondWithLight = msg => res => {
+const respondWithLight = (msg, val) => res => {
   res.setTimeout(1000);
   res.setHeader('Content-Type', 'text/html');
   res.writeHead(200, {'Content-Type': 'text/plain'});
-  return res.end(msg);
+  res.end(msg);
+  return led.writeSync(val);
 };
 
-const respondWithLightOn = respondWithLight('turning the light on');
-const respondWithLightOff = respondWithLight('turning the light off');
+const respondWithLightOn = respondWithLight('turning the light on', 1);
+const respondWithLightOff = respondWithLight('turning the light off', 0);
 
 const requestHandler = (req, res) => {
   console.log('request comming in');
