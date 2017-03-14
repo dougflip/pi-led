@@ -20,12 +20,12 @@
 
       const turnOn = () => {
         ledToggle.innerHTML = 'off';
-        return fetch('/light-on');
+        return fetch('/gpio/14/on');
       };
 
       const turnOff = () => {
         ledToggle.innerHTML = 'on';
-        return fetch('/light-off');
+        return fetch('/gpio/14/off');
       };
 
       ledToggle.addEventListener('click', evt => {
