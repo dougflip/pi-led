@@ -4,12 +4,13 @@ const url = require('url');
 const Gpio = require('onoff').Gpio;
 
 const availableGpio = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27];
+const activeOutputGpioPins = [14];
 
 const led = new Gpio(14, 'out');
 
-const gpioMap = availableGpio.reduce((acc, pin) => {
+const outputGpioMap = activeOutputGpioPins.reduce((acc, pin) => {
     return Object.assign({}, acc, {
-        [pin]: new Gpio(pin, 'out')
+        [pin]: new Gpio(pin, 'output')
     });
 }, {});
 
@@ -22,9 +23,20 @@ const respondWithInvalidPinError = (pinNumber, res) => {
     res.end(`${pinNumber} is not a valid GPIO pin`);
 }
 
+const respondWithInvalidPinConfigError = (pinNumber, res) => {
+    res.setTimeout(500);
+    res.setHeader('Content-Type', 'text/html');
+    res.writeHead(400, { 'Content-Type': 'text/plain' });
+    res.end(`${pinNumber} has not been configured as an "out" pin.`);
+}
+
 const respondWithGpioAction = (msg, pinNumber, action, res) => {
     if (!availableGpio.includes(pinNumber)) {
         return respondWithInvalidPinError(pinNumber, res);
+    }
+
+    if (!activeOutputGpioPins.includes(pinNumber)) {
+        return respondWithInvalidPinConfigError(pinNumber, res);
     }
 
     res.setTimeout(1000);
@@ -33,7 +45,7 @@ const respondWithGpioAction = (msg, pinNumber, action, res) => {
     res.end(msg);
 
     const val = action === 'on' ? 1 : 0;
-    return gpioMap[pinNumber].writeSync(val);
+    return outputGpioMap[pinNumber].writeSync(val);
 };
 
 const requestHandler = (req, res) => {
@@ -66,6 +78,6 @@ process.on('SIGINT', () => {
     console.log('see ya!');
     server.close();
     availableGpio.forEach(pin => {
-        gpioMap[pin].unexport();
+        outputGpioMap[pin].unexport();
     });
 });
